@@ -1,5 +1,12 @@
 {
   "name": "identity-provider",
+  "description": "A secure and scalable identity provider for JWT authentication and Refresh Token management",
+  "authors": [
+    {
+      "name": "Grzegorz Jamróz",
+      "email": "grzegorz.jamrooz@gmail.com"
+    }
+  ],
   "version": "1.0.0",
   "type": "module",
   "main": "src/server.js",
