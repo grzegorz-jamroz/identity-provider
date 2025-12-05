@@ -11,6 +11,11 @@
     <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square&colorB=darkcyan" alt="Read License">
 </p>
 
+# Table of Contents
+- [Installation](#installation)
+- [Usage](#usage)
+- [Development with Docker](#development-with-docker)
+
 # Installation
 
 1. Copy .env.example to .env
@@ -23,35 +28,35 @@
 
 3. Execute SQL migration manually to set up the database schema. Remember to replace placeholders `<my_auth_db_name>`, `<user_table_name>`, `<refresh_token_table_name>` with your actual database and table names.
 
-```sql
-CREATE DATABASE IF NOT EXISTS `<my_auth_db_name>`;
-USE `<my_auth_db_name>`;
+   ```sql
+   CREATE DATABASE IF NOT EXISTS `<my_auth_db_name>`;
+   USE `<my_auth_db_name>`;
 
-CREATE TABLE IF NOT EXISTS `<user_table_name>` (
-  uuid       BINARY(16) NOT NULL,
-  username   VARCHAR(50),
-  email      VARCHAR(255),
-  password   VARCHAR(255) NOT NULL,
-  roles      JSON NOT NULL,
-  created_at DATETIME     NOT NULL,
-  updated_at DATETIME     NOT NULL,
-  UNIQUE KEY unique_username (username),
-  UNIQUE KEY unique_email (email),
-  PRIMARY KEY (uuid)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB;
+   CREATE TABLE IF NOT EXISTS `<user_table_name>` (
+     uuid       BINARY(16) NOT NULL,
+     username   VARCHAR(50),
+     email      VARCHAR(255),
+     password   VARCHAR(255) NOT NULL,
+     roles      JSON NOT NULL,
+     created_at DATETIME     NOT NULL,
+     updated_at DATETIME     NOT NULL,
+     UNIQUE KEY unique_username (username),
+     UNIQUE KEY unique_email (email),
+     PRIMARY KEY (uuid)
+   ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `<refresh_token_table_name>` (
-  uuid BINARY(16) NOT NULL,
-  user_uuid BINARY(16) NOT NULL,
-  device_info VARCHAR(255),
-  iat DATETIME NOT NULL,
-  exp DATETIME NOT NULL,
-  created_at DATETIME NOT NULL,
-  PRIMARY KEY (uuid)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB;
+   CREATE TABLE IF NOT EXISTS `<refresh_token_table_name>` (
+     uuid BINARY(16) NOT NULL,
+     user_uuid BINARY(16) NOT NULL,
+     device_info VARCHAR(255),
+     iat DATETIME NOT NULL,
+     exp DATETIME NOT NULL,
+     created_at DATETIME NOT NULL,
+     PRIMARY KEY (uuid)
+   ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB;
 
-ALTER TABLE `<refresh_token_table_name>` ADD CONSTRAINT FK_IDX_REFRESH_TOKEN_USER FOREIGN KEY (user_uuid) REFERENCES `<user_table_name>` (uuid) ON DELETE CASCADE;
-```
+   ALTER TABLE `<refresh_token_table_name>` ADD CONSTRAINT FK_IDX_REFRESH_TOKEN_USER FOREIGN KEY (user_uuid) REFERENCES `<user_table_name>` (uuid) ON DELETE CASCADE;
+   ```
 
 4. Run docker containers
 
