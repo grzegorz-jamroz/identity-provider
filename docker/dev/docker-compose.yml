@@ -1,0 +1,41 @@
+services:
+  app:
+    build:
+      context: ../../
+      dockerfile: docker/dev/Dockerfile
+    container_name: identity-provider-dev-app
+    ports:
+      - '${APP_HOST_PORT}:${APP_CONTAINER_PORT_PORT}'
+    environment:
+      - DB_HOST=${DB_HOST}
+    volumes:
+      - ../../config:/app/config
+      - ../../src:/app/src
+      - ../../tests:/app/tests
+      - ../../package.json:/app/package.json
+      - ../../package-lock.json:/app/package-lock.json
+    depends_on:
+      - mariadb
+    networks:
+      - identity-provider-dev-network
+
+  mariadb:
+    image: mariadb:10.11
+    container_name: identity-provider-dev-db
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      USER_TABLE_NAME: ${USER_TABLE_NAME}
+      REFRESH_TOKEN_TABLE_NAME: ${REFRESH_TOKEN_TABLE_NAME}
+    working_dir: /var/sql
+    volumes:
+      - ./init-db:/docker-entrypoint-initdb.d
+    networks:
+      - identity-provider-dev-network
+
+networks:
+  identity-provider-dev-network:
+    driver: bridge
