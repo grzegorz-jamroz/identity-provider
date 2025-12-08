@@ -1,5 +1,6 @@
 services:
   identity-provider:
+    container_name: ${APP_CONTAINER_NAME}
     build:
       context: .
       dockerfile: docker/Dockerfile
