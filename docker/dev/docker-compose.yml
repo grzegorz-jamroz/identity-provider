@@ -22,7 +22,6 @@ services:
   mariadb:
     image: mariadb:10.11
     container_name: identity-provider-dev-db
-    restart: always
     environment:
       MARIADB_ROOT_PASSWORD: root
       MARIADB_DATABASE: ${DB_NAME}
