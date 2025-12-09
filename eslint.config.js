@@ -32,7 +32,10 @@ export default [
     },
     rules: {
       // --- Code Quality ---
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }], // Consistent with your React app
+      'no-unused-vars': [
+        'error',
+        { varsIgnorePattern: '^[A-Z_]', caughtErrors: 'none', ignoreRestSiblings: true },
+      ], // Consistent with your React app
       'no-console': ['warn', { allow: ['info', 'error'] }], // Allow logs, but warn so you don't spam prod
 
       // --- Node Specifics (plugin-n) ---
