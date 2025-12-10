@@ -30,8 +30,6 @@ export default async function logout(req, res) {
       return res.sendStatus(403);
     }
 
-    console.error(err);
-
     return res.sendStatus(500);
   }
 }
