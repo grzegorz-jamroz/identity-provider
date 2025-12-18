@@ -22,7 +22,7 @@ export default async function login(req, res) {
       return res.status(422).json({
         message: 'Missing credentials',
         type: 'credentials.missing',
-        types: err.details.map(
+        details: err.details.map(
           ({ type, context }) => `${context.key}.${type.split('.').slice(1).join('.')}`,
         ),
       });

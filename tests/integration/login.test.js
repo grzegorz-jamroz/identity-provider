@@ -35,7 +35,7 @@ describe('Integration Login Tests', () => {
       expect(res.body).toStrictEqual({
         message: 'Missing credentials',
         type: 'credentials.missing',
-        types: ['username.required', 'password.required'],
+        details: ['username.required', 'password.required'],
       });
     });
 
