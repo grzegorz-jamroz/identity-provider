@@ -41,7 +41,11 @@ describe('Integration Register Tests', () => {
       // Then
       expect(response.statusCode).toBe(422);
       expect(response.body.message).toBe('Invalid data');
-      expect(response.body.types).toEqual(['username.pattern.base', 'email.email', 'password.min']);
+      expect(response.body.details).toEqual([
+        'username.pattern.base',
+        'email.email',
+        'password.min',
+      ]);
     });
 
     it('should return 409 when user already exists', async () => {

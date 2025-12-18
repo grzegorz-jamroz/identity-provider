@@ -48,7 +48,7 @@ export default async function register(req, res) {
       return res.status(422).json({
         message: 'Invalid data',
         type: 'register',
-        types: err.details.map(
+        details: err.details.map(
           ({ type, context }) => `${context.key}.${type.split('.').slice(1).join('.')}`,
         ),
       });
