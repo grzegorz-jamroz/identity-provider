@@ -1,0 +1,4 @@
+services:
+  identity-provider:
+    ports:
+      - '${APP_HOST_PORT}:${APP_CONTAINER_PORT_PORT}'

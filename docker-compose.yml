@@ -4,8 +4,6 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    ports:
-      - '${APP_HOST_PORT}:${APP_CONTAINER_PORT_PORT}'
     environment:
       - DB_HOST=${DB_HOST}
     restart: unless-stopped
