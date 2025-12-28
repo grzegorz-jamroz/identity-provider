@@ -1,46 +1,89 @@
 import bcrypt from 'bcrypt';
 
-import appConfig from '../../config/app-config.js';
-import db from '../db.js';
 import InvalidCredentialsError from '../error/InvalidCredentialsError.js';
 import NotFoundError from '../error/NotFoundError.js';
 import transform from '../utility/transform.js';
 
-const findOneByUuid = async (uuid) => {
-  const [users] = await db.execute(`SELECT * FROM ${appConfig.userTableName} WHERE uuid = ?`, [
-    transform.uuid.toBinary(uuid),
-  ]);
-
-  if (users.length === 0) {
-    throw new NotFoundError();
+export class UserRepository {
+  constructor(db, appConfig) {
+    this.db = db;
+    this.appConfig = appConfig;
   }
 
-  return users[0];
-};
+  async findOneByUuid(uuid) {
+    const [users] = await this.db.execute(
+      `SELECT * FROM ${this.appConfig.userTableName} WHERE uuid = ?`,
+      [transform.uuid.toBinary(uuid)],
+    );
 
-const findOneByCredentials = async (username, password) => {
-  const [users] = await db.execute(
-    `SELECT * FROM ${appConfig.userTableName} WHERE email = ? OR username = ?`,
-    [username, username],
-  );
+    if (users.length === 0) {
+      throw new NotFoundError();
+    }
 
-  const error = new InvalidCredentialsError('Invalid credentials');
-
-  if (users.length === 0) {
-    throw error;
+    return users[0];
   }
 
-  const user = users[0];
-  const match = await bcrypt.compare(password, user.password);
+  async findOneByCredentials(username, password) {
+    const [users] = await this.db.execute(
+      `SELECT * FROM ${this.appConfig.userTableName} WHERE email = ? OR username = ?`,
+      [username, username],
+    );
 
-  if (!match) {
-    throw error;
+    const error = new InvalidCredentialsError('Invalid credentials');
+
+    if (users.length === 0) {
+      throw error;
+    }
+
+    const user = users[0];
+    const match = await bcrypt.compare(password, user.password);
+
+    if (!match) {
+      throw error;
+    }
+
+    return user;
   }
 
-  return user;
-};
+  async getUuidByUsernameOrEmail(username, email) {
+    const [users] = await this.db.execute(
+      `SELECT uuid
+       FROM ${this.appConfig.userTableName}
+       WHERE email = ?
+          OR username = ?`,
+      [email, username],
+    );
 
-export default {
-  findOneByUuid,
-  findOneByCredentials,
-};
+    if (users.length === 0) {
+      throw new NotFoundError();
+    }
+
+    return users[0].uuid;
+  }
+
+  async insertOne({
+    userUuidBinary,
+    username,
+    email,
+    hashedPassword,
+    roles,
+    createdAt,
+    updatedAt,
+  }) {
+    await this.db.execute(
+      `INSERT INTO ${this.appConfig.userTableName} (uuid, username, email, password, roles, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        userUuidBinary,
+        username,
+        email,
+        hashedPassword,
+        roles || JSON.stringify(['ROLE_USER']),
+        createdAt || new Date(),
+        updatedAt || new Date(),
+      ],
+    );
+  }
+}
+
+export default UserRepository;

@@ -4,7 +4,7 @@ import request from 'supertest';
 import { v7 as uuidv7 } from 'uuid';
 
 import app from '../../src/app.js';
-import db from '../../src/db.js';
+import { getDb } from '../../src/db.js';
 import { createUser } from '../helper.js';
 
 import { testUserLogin } from './login.test.js';
@@ -12,6 +12,12 @@ import { testUserLogin } from './login.test.js';
 process.env.NODE_ENV = 'test';
 
 describe('Integration Auth Tests', () => {
+  let db;
+
+  beforeAll(async () => {
+    db = await getDb();
+  });
+
   beforeEach(async () => {
     await db.execute('DELETE FROM refresh_token');
     await db.execute('DELETE FROM user');
@@ -24,7 +30,7 @@ describe('Integration Auth Tests', () => {
   describe('POST /auth', () => {
     it('should register, login and auth successfully', async () => {
       // Expect & Given
-      const loginResponse = await testUserLogin('real@test.com', 'Password123!');
+      const loginResponse = await testUserLogin('real@test.com', 'Password123!', db);
       const accessToken = loginResponse.body.accessToken;
 
       // When

@@ -68,6 +68,12 @@
 
 ## Register
 
+Parameters:
+
+| parameter | value                                       | required | default value |
+|-----------|---------------------------------------------|----------|---------------|
+| system    | key from `config/tenants.js` tenants object | `no`     | `default`     |
+
 ```bash
 curl -X POST http://<host>:<port>/register \
 -H "Content-Type: application/json" \
@@ -75,6 +81,10 @@ curl -X POST http://<host>:<port>/register \
 ```
 
 ## Login
+
+| parameter | value                                       | required | default value |
+|-----------|---------------------------------------------|----------|---------------|
+| system    | key from `config/tenants.js` tenants object | `no`     | `default`     |
 
 ```bash
 curl -X POST http://<host>:<port>/login \
@@ -84,6 +94,10 @@ curl -X POST http://<host>:<port>/login \
 
 ## Auth
 
+| parameter | value                                       | required | default value |
+|-----------|---------------------------------------------|----------|---------------|
+| system    | key from `config/tenants.js` tenants object | `no`     | `default`     |
+
 ```bash
 curl -X POST http://<host>:<port>/auth \
 -H "Content-Type: application/json" \
@@ -92,17 +106,88 @@ curl -X POST http://<host>:<port>/auth \
 
 ## Refresh
 
+| parameter | value                                       | required | default value |
+|-----------|---------------------------------------------|----------|---------------|
+| system    | key from `config/tenants.js` tenants object | `no`     | `default`     |
+
 ```bash
 curl -X GET http://<host>:<port>/refresh \
 -H "refresh_token: your_refresh_token"
 ```
 
+```bash
+curl -X GET http://<host>:<port>/refresh?system=my_app_1_prod \
+-H "refresh_token: your_refresh_token"
+```
+
 ## Logout
+
+| parameter | value                                       | required | default value |
+|-----------|---------------------------------------------|----------|---------------|
+| system    | key from `config/tenants.js` tenants object | `no`     | `default`     |
 
 ```bash
 curl -X GET http://<host>:<port>/logout \
 -H "refresh_token: your_refresh_token" | jq
 ```
+
+```bash
+curl -X GET http://<host>:<port>/logout?system=my_app_1_prod \
+-H "refresh_token: your_refresh_token" | jq
+```
+
+# Multi Tenancy Support
+To enable multi-tenancy just add new tenant to `config/tenants.js`:
+for example add 3 tenants: `app-1-prod`, `app-1-test`, `app-2` and a default tenant that reads from environment variables.
+
+```javascript
+import dotenv from 'dotenv';
+dotenv.config();
+
+export const tenants = {
+  'app-1-prod': {
+    dbConfig: {
+      database: 'my_app_1_prod',
+      user: 'username',
+      password: 'secure-password',
+    },
+  },
+  'app-1-test': {
+    dbConfig: {
+      database: 'my_app_1_test',
+    },
+  },
+  'app-2': {
+    dbConfig: {
+      database: 'my_app_2',
+    },
+    appConfig: {
+      userTableName: 'users',
+      refreshTokenTableName: 'tokens',
+    },
+  },
+  default: {
+    dbConfig: {
+      database: process.env.DB_NAME,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      host: process.env.DB_HOST,
+    },
+    appConfig: {
+      userTableName: process.env.USER_TABLE_NAME || 'user',
+      refreshTokenTableName: process.env.REFRESH_TOKEN_TABLE_NAME || 'refresh_token',
+    },
+  },
+};
+
+export const tenantIds = Object.keys(tenants);
+```
+
+then specify the `system` parameter in the query or body (depends on method) to select the tenant.
+
+If you want to disable `default` tenant just remove it from the `tenants` object.
+
+---
 
 # Development with Docker
 

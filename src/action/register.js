@@ -2,8 +2,11 @@ import bcrypt from 'bcrypt';
 import Joi from 'joi';
 import { parse as uuidParse, v7 as uuidv7 } from 'uuid';
 
-import appConfig from '../../config/app-config.js';
-import db from '../db.js';
+import { tenantIds } from '../../config/tenants.js';
+import { getDb } from '../db.js';
+import NotFoundError from '../error/NotFoundError.js';
+import UserRepository from '../repository/userRepository.js';
+import getAppConfig from '../utility/appConfig.js';
 
 export default async function register(req, res) {
   if (process.env.ENABLE_REGISTRATION !== 'true') {
@@ -11,36 +14,30 @@ export default async function register(req, res) {
   }
 
   try {
-    const { username, email, password } = getValidatedData(req);
-    const [existing] = await db.execute(
-      `SELECT uuid
-       FROM ${appConfig.userTableName}
-       WHERE email = ?
-          OR username = ?`,
-      [email, username],
-    );
+    const { username, email, password, system } = getValidatedData(req);
+    const db = await getDb(system);
+    const appConfig = await getAppConfig(system);
+    const userRepository = new UserRepository(db, appConfig);
 
-    if (existing.length > 0) {
+    try {
+      await userRepository.getUuidByUsernameOrEmail(username, email);
+
       return res.status(409).json({ message: 'User already exists' });
+    } catch (err) {
+      if (err instanceof NotFoundError === false) {
+        throw err;
+      }
     }
 
     const hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_ROUNDS || 10));
     const userUuid = uuidv7();
     const userUuidBinary = Buffer.from(uuidParse(userUuid));
-
-    await db.execute(
-      `INSERT INTO ${appConfig.userTableName} (uuid, username, email, password, roles, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [
-        userUuidBinary,
-        username,
-        email,
-        hashedPassword,
-        JSON.stringify(['ROLE_USER']),
-        new Date(),
-        new Date(),
-      ],
-    );
+    await userRepository.insertOne({
+      userUuidBinary,
+      username,
+      email,
+      hashedPassword,
+    });
 
     return res.status(201).json({ message: 'User created', uuid: userUuid });
   } catch (err) {
@@ -81,4 +78,9 @@ const schema = Joi.object({
   email: Joi.string().email().trim().lowercase().required(),
 
   password: Joi.string().min(8).max(72).required(),
+
+  system: Joi.string()
+    .valid(...tenantIds)
+    .optional()
+    .default('default'),
 });

@@ -19,6 +19,7 @@ describe('Register Action Unit Tests', () => {
       .fn()
       .mockResolvedValueOnce([[]]) // SELECT returns empty array (no user)
       .mockResolvedValueOnce([{ insertId: 1 }]); // INSERT success
+    const getDbMock = jest.fn().mockResolvedValue({ execute: dbExecuteMock });
 
     // 2. Mock Bcrypt: We spy on hash to check the 'rounds' argument
     const bcryptHashMock = jest.fn().mockResolvedValue('hashed_password');
@@ -30,7 +31,7 @@ describe('Register Action Unit Tests', () => {
     };
 
     // 4. Setup ES Module Mocks
-    jest.unstable_mockModule('../../../src/db.js', () => ({ default: { execute: dbExecuteMock } }));
+    jest.unstable_mockModule('../../../src/db.js', () => ({ getDb: getDbMock }));
     jest.unstable_mockModule('bcrypt', () => ({ default: { hash: bcryptHashMock } }));
     jest.unstable_mockModule('uuid', () => uuidMock);
 

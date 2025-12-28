@@ -1,11 +1,17 @@
 import { jest } from '@jest/globals';
 
-import db from '../../src/db.js';
+import { getDb } from '../../src/db.js';
 import { createUser } from '../helper.js';
 
 process.env.NODE_ENV = 'test';
 
 describe('Integration Register Tests', () => {
+  let db;
+
+  beforeAll(async () => {
+    db = await getDb();
+  });
+
   beforeEach(async () => {
     await db.execute('DELETE FROM refresh_token');
     await db.execute('DELETE FROM user');

@@ -1,17 +1,24 @@
 import Joi from 'joi';
 import { stringify as uuidStringify, v7 as uuidv7 } from 'uuid';
 
+import { tenantIds } from '../../config/tenants.js';
+import { getDb } from '../db.js';
 import InvalidCredentialsError from '../error/InvalidCredentialsError.js';
-import tokenRepository from '../repository/tokenRepository.js';
-import userRepository from '../repository/userRepository.js';
-import lazyCleanupExpiredTokens from '../utility/lazyCleanupExpiredTokens.js';
+import TokenRepository from '../repository/tokenRepository.js';
+import UserRepository from '../repository/userRepository.js';
+import getAppConfig from '../utility/appConfig.js';
+import LazyCleanupExpiredTokens from '../utility/lazyCleanupExpiredTokens.js';
 import token from '../utility/token.js';
 
 export default async function login(req, res) {
   try {
-    const { username, password, deviceInfo } = getValidatedData(req);
+    const { username, password, deviceInfo, system } = getValidatedData(req);
+    const db = await getDb(system);
+    const appConfig = await getAppConfig(system);
+    const tokenRepository = new TokenRepository(db, appConfig);
+    const userRepository = new UserRepository(db, appConfig);
     const user = await userRepository.findOneByCredentials(username, password);
-    lazyCleanupExpiredTokens(user.uuid);
+    new LazyCleanupExpiredTokens(tokenRepository).run(user.uuid);
     const accessToken = token.accessToken.create(user);
     const refreshToken = token.refreshToken.create(uuidv7(), uuidStringify(user.uuid), deviceInfo);
     await tokenRepository.insertOne(refreshToken);
@@ -52,4 +59,8 @@ const getValidatedData = (req) => {
 const schema = Joi.object({
   username: Joi.string().required(),
   password: Joi.string().required(),
+  system: Joi.string()
+    .valid(...tenantIds)
+    .optional()
+    .default('default'),
 });

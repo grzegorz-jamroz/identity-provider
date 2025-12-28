@@ -1,10 +1,11 @@
 import cron from 'node-cron';
 
-import appConfig from '../config/app-config.js';
+import { tenantIds } from '../config/tenants.js';
 
-import db from './db.js';
+import getAppConfig from './utility/appConfig.js';
+import { getDb } from './db.js';
 
-export default function startCleanupJob() {
+export function startCleanupJob(db, appConfig) {
   // Run every day at midnight (00:00)
   cron.schedule('0 0 * * *', async () => {
     console.info('[CRON] Starting cleanup of expired refresh tokens...');
@@ -22,4 +23,13 @@ export default function startCleanupJob() {
     }
   });
   console.info('[CRON] Cleanup job scheduled (Daily at 00:00).');
+}
+
+export async function startCleanupJobForAllSystems() {
+  for (const tenantId of tenantIds) {
+    console.info(`[CRON] Starting cleanup job for tenant: ${tenantId}`);
+    const db = await getDb(tenantId);
+    const appConfig = getAppConfig(tenantId);
+    startCleanupJob(db, appConfig);
+  }
 }

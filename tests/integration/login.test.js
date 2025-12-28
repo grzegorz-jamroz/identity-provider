@@ -2,14 +2,22 @@ import { jest } from '@jest/globals';
 import request from 'supertest';
 import { stringify as uuidStringify } from 'uuid';
 
-import appConfig from '../../config/app-config.js';
 import app from '../../src/app.js';
-import db from '../../src/db.js';
+import { getDb } from '../../src/db.js';
+import getAppConfig from '../../src/utility/appConfig.js';
 import { createUser } from '../helper.js';
 
 process.env.NODE_ENV = 'test';
 
 describe('Integration Login Tests', () => {
+  let db;
+  let appConfig;
+
+  beforeAll(async () => {
+    db = await getDb();
+    appConfig = await getAppConfig();
+  });
+
   beforeEach(async () => {
     await db.execute('DELETE FROM refresh_token');
     await db.execute('DELETE FROM user');
@@ -21,10 +29,10 @@ describe('Integration Login Tests', () => {
 
   describe('POST /login', () => {
     it('should register and then login successfully using email in credentials', async () =>
-      await testUserLogin('real@test.com', 'Password123!'));
+      await testUserLogin('real@test.com', 'Password123!', db));
 
     it('should register and then login successfully using username in credentials', async () =>
-      await testUserLogin('realuser', 'Password123!'));
+      await testUserLogin('realuser', 'Password123!', db));
 
     it('should fail when missing credentials', async () => {
       // When
@@ -107,12 +115,12 @@ describe('Integration Login Tests', () => {
       });
 
       // When & Then
-      await testUserLogin('real@test.com', 'Password123!');
+      await testUserLogin('real@test.com', 'Password123!', db);
     });
   });
 });
 
-export const testUserLogin = async (username, password) => {
+export const testUserLogin = async (username, password, db) => {
   // Expect & Given
   const createUserResponse = await createUser();
   expect(createUserResponse.statusCode).toBe(201);

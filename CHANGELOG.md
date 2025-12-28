@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Add
+- Multi tenant support
+
 ## [v1.0.0] - 2025.12.05
 
 ### Add

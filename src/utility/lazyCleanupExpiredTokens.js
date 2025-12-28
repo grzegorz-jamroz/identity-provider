@@ -1,9 +1,15 @@
-import tokenRepository from '../repository/tokenRepository.js';
+export class LazyCleanupExpiredTokens {
+  constructor(tokenRepository) {
+    this.tokenRepository = tokenRepository;
+  }
 
-export default async function lazyCleanupExpiredTokens(userUuid) {
-  try {
-    await tokenRepository.deleteExpiredByUserUuid(userUuid);
-  } catch (cleanupErr) {
-    console.error('Lazy cleanup failed:', cleanupErr);
+  async run(userUuid) {
+    try {
+      await this.tokenRepository.deleteExpiredByUserUuid(userUuid);
+    } catch (cleanupErr) {
+      console.error('Lazy cleanup failed:', cleanupErr);
+    }
   }
 }
+
+export default LazyCleanupExpiredTokens;

@@ -1,4 +1,6 @@
 export default {
+  setupFiles: ['<rootDir>/tests/bootstrap.js'],
+
   // force tests to run one by one in the same process
   maxWorkers: 1,
 

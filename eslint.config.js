@@ -89,4 +89,11 @@ export default [
       'no-undef': 'off',
     },
   },
+
+  {
+    files: ['src/server.js'],
+    rules: {
+      'n/no-process-exit': 'off',
+    },
+  },
 ];

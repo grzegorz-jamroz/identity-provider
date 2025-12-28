@@ -1,55 +1,55 @@
 import jwt from 'jsonwebtoken';
 
-import appConfig from '../../config/app-config.js';
-import db from '../db.js';
 import NotFoundError from '../error/NotFoundError.js';
 import transform from '../utility/transform.js';
 
-const findOneByUuid = async (uuid) => {
-  const [tokens] = await db.execute(
-    `SELECT * FROM ${appConfig.refreshTokenTableName} WHERE uuid = ?`,
-    [transform.uuid.toBinary(uuid)],
-  );
-
-  if (tokens.length === 0) {
-    throw new NotFoundError();
+export class TokenRepository {
+  constructor(db, appConfig) {
+    this.db = db;
+    this.appConfig = appConfig;
   }
 
-  return tokens[0];
-};
+  async findOneByUuid(uuid) {
+    const [tokens] = await this.db.execute(
+      `SELECT * FROM ${this.appConfig.refreshTokenTableName} WHERE uuid = ?`,
+      [transform.uuid.toBinary(uuid)],
+    );
 
-const insertOne = async (refreshToken) => {
-  const decodedRT = jwt.decode(refreshToken);
+    if (tokens.length === 0) {
+      throw new NotFoundError();
+    }
 
-  await db.execute(
-    `INSERT INTO ${appConfig.refreshTokenTableName} (uuid, user_uuid, device_info, iat, exp, created_at) VALUES (?, ?, ?, ?, ?, ?)`,
-    [
-      transform.uuid.toBinary(decodedRT.refreshTokenUuid),
-      transform.uuid.toBinary(decodedRT.userUuid),
-      decodedRT.deviceInfo,
-      new Date(decodedRT.iat * 1000),
-      new Date(decodedRT.exp * 1000),
-      new Date(),
-    ],
-  );
-};
+    return tokens[0];
+  }
 
-const deleteOneByUuid = async (uuid) => {
-  await db.execute(`DELETE FROM ${appConfig.refreshTokenTableName} WHERE uuid = ?`, [
-    transform.uuid.toBinary(uuid),
-  ]);
-};
+  async insertOne(refreshToken) {
+    const decodedRT = jwt.decode(refreshToken);
 
-const deleteExpiredByUserUuid = async (userUuid) => {
-  await db.execute(
-    `DELETE FROM ${appConfig.refreshTokenTableName} WHERE user_uuid = ? AND exp < ?`,
-    [transform.uuid.toBinary(userUuid), new Date()],
-  );
-};
+    await this.db.execute(
+      `INSERT INTO ${this.appConfig.refreshTokenTableName} (uuid, user_uuid, device_info, iat, exp, created_at) VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        transform.uuid.toBinary(decodedRT.refreshTokenUuid),
+        transform.uuid.toBinary(decodedRT.userUuid),
+        decodedRT.deviceInfo,
+        new Date(decodedRT.iat * 1000),
+        new Date(decodedRT.exp * 1000),
+        new Date(),
+      ],
+    );
+  }
 
-export default {
-  findOneByUuid,
-  insertOne,
-  deleteOneByUuid,
-  deleteExpiredByUserUuid,
-};
+  async deleteOneByUuid(uuid) {
+    await this.db.execute(`DELETE FROM ${this.appConfig.refreshTokenTableName} WHERE uuid = ?`, [
+      transform.uuid.toBinary(uuid),
+    ]);
+  }
+
+  async deleteExpiredByUserUuid(userUuid) {
+    await this.db.execute(
+      `DELETE FROM ${this.appConfig.refreshTokenTableName} WHERE user_uuid = ? AND exp < ?`,
+      [transform.uuid.toBinary(userUuid), new Date()],
+    );
+  }
+}
+
+export default TokenRepository;

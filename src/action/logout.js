@@ -1,8 +1,10 @@
+import Joi from 'joi';
 import jwt from 'jsonwebtoken';
-import { parse as uuidParse } from 'uuid';
 
-import appConfig from '../../config/app-config.js';
-import db from '../db.js';
+import { tenantIds } from '../../config/tenants.js';
+import { getDb } from '../db.js';
+import TokenRepository from '../repository/tokenRepository.js';
+import getAppConfig from '../utility/appConfig.js';
 
 export default async function logout(req, res) {
   const token = req.headers['refresh_token'];
@@ -13,13 +15,24 @@ export default async function logout(req, res) {
 
   try {
     const payload = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
-    const refreshTokenUuidBinary = Buffer.from(uuidParse(payload.refreshTokenUuid));
-    await db.execute(`DELETE FROM ${appConfig.refreshTokenTableName} WHERE uuid = ?`, [
-      refreshTokenUuidBinary,
-    ]);
+    const { system } = getValidatedData(req);
+    const db = await getDb(system);
+    const appConfig = await getAppConfig(system);
+    const tokenRepository = new TokenRepository(db, appConfig);
+    await tokenRepository.deleteOneByUuid(payload.refreshTokenUuid);
 
     return res.json({ message: 'Successfully logged out.' });
   } catch (err) {
+    if (err instanceof Joi.ValidationError) {
+      return res.status(422).json({
+        message: 'Invalid data',
+        type: 'logout',
+        details: err.details.map(
+          ({ type, context }) => `${context.key}.${type.split('.').slice(1).join('.')}`,
+        ),
+      });
+    }
+
     if (err instanceof jwt.TokenExpiredError) {
       return res.sendStatus(403);
     }
@@ -33,3 +46,20 @@ export default async function logout(req, res) {
     return res.sendStatus(500);
   }
 }
+
+const getValidatedData = (req) => {
+  const { error, value } = schema.validate(req.query, { abortEarly: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return value;
+};
+
+const schema = Joi.object({
+  system: Joi.string()
+    .valid(...tenantIds)
+    .optional()
+    .default('default'),
+});

@@ -3,9 +3,9 @@ import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { parse as uuidParse, v7 as uuidv7 } from 'uuid';
 
-import appConfig from '../../config/app-config.js';
 import app from '../../src/app.js';
-import db from '../../src/db.js';
+import { getDb } from '../../src/db.js';
+import getAppConfig from '../../src/utility/appConfig.js';
 
 import { testUserLogin } from './login.test.js';
 import { getRefreshTokenAfterLogin } from './refresh.test.js';
@@ -13,6 +13,14 @@ import { getRefreshTokenAfterLogin } from './refresh.test.js';
 process.env.NODE_ENV = 'test';
 
 describe('Integration Logout Tests', () => {
+  let db;
+  let appConfig;
+
+  beforeAll(async () => {
+    db = await getDb();
+    appConfig = await getAppConfig();
+  });
+
   beforeEach(async () => {
     await db.execute('DELETE FROM refresh_token');
     await db.execute('DELETE FROM user');
@@ -25,7 +33,7 @@ describe('Integration Logout Tests', () => {
   describe('GET /logout', () => {
     it('should register, login and logout successfully', async () => {
       // Expect & Given
-      const loginResponse = await testUserLogin('real@test.com', 'Password123!');
+      const loginResponse = await testUserLogin('real@test.com', 'Password123!', db);
       const refreshToken = loginResponse.body.refreshToken;
 
       // When
@@ -85,6 +93,22 @@ describe('Integration Logout Tests', () => {
       expect(response.statusCode).toBe(403);
     });
 
+    it('should return 422 when invalid "system" parameter is provided', async () => {
+      // Expect & Given
+      const refreshToken = await getRefreshTokenAfterLogin();
+
+      // When
+      const response = await request(app)
+        .get('/logout')
+        .set('refresh_token', refreshToken)
+        .query({ system: 'invalid_system' });
+
+      // Then
+      expect(response.statusCode).toBe(422);
+      expect(response.body.message).toBe('Invalid data');
+      expect(response.body.details).toEqual(['system.only']);
+    });
+
     it('should return 500 when db connection is lost', async () => {
       // Expect & Given
       const originalExecute = db.execute;
@@ -96,7 +120,7 @@ describe('Integration Logout Tests', () => {
 
         return originalExecute.call(db, sql, params);
       });
-      const loginResponse = await testUserLogin('real@test.com', 'Password123!');
+      const loginResponse = await testUserLogin('real@test.com', 'Password123!', db);
       const refreshToken = loginResponse.body.refreshToken;
 
       // When

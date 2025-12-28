@@ -4,12 +4,18 @@ import request from 'supertest';
 import { parse as uuidParse, v7 as uuidv7 } from 'uuid';
 
 import app from '../../src/app.js';
-import db from '../../src/db.js';
+import { getDb } from '../../src/db.js';
 import { createUser } from '../helper.js';
 
 process.env.NODE_ENV = 'test';
 
 describe('Integration Refresh Tests', () => {
+  let db;
+
+  beforeAll(async () => {
+    db = await getDb();
+  });
+
   beforeEach(async () => {
     await db.execute('DELETE FROM refresh_token');
     await db.execute('DELETE FROM user');
@@ -120,6 +126,22 @@ describe('Integration Refresh Tests', () => {
 
       // Then
       expect(response.statusCode).toBe(403);
+    });
+
+    it('should return 422 when invalid "system" parameter is provided', async () => {
+      // Expect & Given
+      const refreshToken = await getRefreshTokenAfterLogin();
+
+      // When
+      const response = await request(app)
+        .get('/refresh')
+        .set('refresh_token', refreshToken)
+        .query({ system: 'invalid_system' });
+
+      // Then
+      expect(response.statusCode).toBe(422);
+      expect(response.body.message).toBe('Invalid data');
+      expect(response.body.details).toEqual(['system.only']);
     });
 
     it('should return 500 when db connection is lost', async () => {
