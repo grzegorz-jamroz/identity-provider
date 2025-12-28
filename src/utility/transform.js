@@ -10,7 +10,6 @@ const toBinary = (uuid) => {
 
 export default {
   uuid: {
-    toString,
     toBinary,
   },
 };
