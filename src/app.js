@@ -7,6 +7,7 @@ import logout from './action/logout.js';
 import refresh from './action/refresh.js';
 import register from './action/register.js';
 
+dotenv.config({ path: '../.env.local' });
 dotenv.config({ path: '../.env' });
 dotenv.config();
 
