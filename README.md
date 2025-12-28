@@ -7,7 +7,7 @@
 <p align="center">
     <img src="https://img.shields.io/badge/node.js->=24-blue?colorB=%2384ba64" alt="Node Version">
     <img src="https://img.shields.io/badge/coverage-100%25 files|100%25 lines-brightgreen" alt="Code Coverage">
-    <img src="https://img.shields.io/badge/release-v1.0.0-blue" alt="Release Version">
+    <img src="https://img.shields.io/badge/release-v1.1.0-blue" alt="Release Version">
     <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square&colorB=darkcyan" alt="Read License">
 </p>
 

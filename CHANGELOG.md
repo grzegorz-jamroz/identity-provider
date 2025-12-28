@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [v1.1.0] - 2025.12.28
 
 ### Add
 - Multi tenant support
@@ -10,4 +10,5 @@
 ### Add
 - First version of Identity Provider
 
+[v1.1.0]: https://github.com/grzegorz-jamroz/identity-provider/releases/tag/v1.1.0
 [v1.0.0]: https://github.com/grzegorz-jamroz/identity-provider/releases/tag/v1.0.0
