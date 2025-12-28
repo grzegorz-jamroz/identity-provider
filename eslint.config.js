@@ -81,7 +81,13 @@ export default [
   // In Flat Config, this is just another object in the array.
   // Since it comes AFTER block #4, it will override rules for these specific files.
   {
-    files: ['eslint.config.js', '**/*.test.js', 'tests/helper.js', '**/*.spec.js'],
+    files: [
+      'eslint.config.js',
+      '**/*.test.js',
+      'tests/helper.js',
+      '**/*.spec.js',
+      'config/tenants.js',
+    ],
     rules: {
       // allow dev dependencies in test files
       'n/no-unpublished-import': 'off',

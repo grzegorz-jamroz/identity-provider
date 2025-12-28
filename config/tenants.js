@@ -1,7 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-export const tenants = {
+let tenants;
+const defaultTenants = {
   default: {
     dbConfig: {
       database: process.env.DB_NAME,
@@ -16,4 +17,12 @@ export const tenants = {
   },
 };
 
+try {
+  const localTenants = await import('./tenants-local.js');
+  tenants = localTenants.tenants;
+} catch (e) {
+  tenants = defaultTenants;
+}
+
+export { tenants };
 export const tenantIds = Object.keys(tenants);

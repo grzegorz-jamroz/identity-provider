@@ -137,13 +137,10 @@ curl -X GET http://<host>:<port>/logout?system=my_app_1_prod \
 ```
 
 # Multi Tenancy Support
-To enable multi-tenancy just add new tenant to `config/tenants.js`:
-for example add 3 tenants: `app-1-prod`, `app-1-test`, `app-2` and a default tenant that reads from environment variables.
+To enable multi-tenancy just create `config/tenants-local.js` file and add new tenants inside.
+For example add 3 tenants: `app-1-prod`, `app-1-test`, `app-2` and a default tenant that reads from environment variables.
 
 ```javascript
-import dotenv from 'dotenv';
-dotenv.config();
-
 export const tenants = {
   'app-1-prod': {
     dbConfig: {
@@ -166,6 +163,7 @@ export const tenants = {
       refreshTokenTableName: 'tokens',
     },
   },
+  // remove this default tenant if you don't want support it
   default: {
     dbConfig: {
       database: process.env.DB_NAME,
@@ -179,8 +177,6 @@ export const tenants = {
     },
   },
 };
-
-export const tenantIds = Object.keys(tenants);
 ```
 
 then specify the `system` parameter in the query or body (depends on method) to select the tenant.
