@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 let tenants;
 const defaultTenants = {
   default: {

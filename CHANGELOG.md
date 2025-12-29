@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Change
+- configure dotenv
+  - load environment variables inside `config/env.js` file
+
 ## [v1.1.0] - 2025.12.28
 
 ### Add

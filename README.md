@@ -18,13 +18,13 @@
 
 # Installation
 
-1. Copy .env.example to .env
+1. Copy `.env` to `.env.local`
 
    ```shell
-   cp .env.example .env
+   cp .env .env.local
    ```
 
-2. Customize the .env file with your configuration settings.
+2. Customize the `.env.local` file with your configuration settings.
 
 3. Execute SQL migration manually to set up the database schema. Remember to replace placeholders `<my_auth_db_name>`, `<user_table_name>`, `<refresh_token_table_name>` with your actual database and table names.
 
@@ -189,10 +189,10 @@ If you want to disable `default` tenant just remove it from the `tenants` object
 
 ## Setup
 
-1. Copy .env.example to docker/dev/.env
+1. Copy `.env` to `docker/dev/.env`
 
    ```shell
-   cp .env.example docker/dev/.env
+   cp .env docker/dev/.env
    ```
 
 2. Build and run the containers:

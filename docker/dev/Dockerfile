@@ -7,6 +7,8 @@ RUN npm install
 
 COPY ../../ .
 
-COPY ../../.env.example /app/.env
+COPY ../../.env /app/.env.local
+
+RUN rm -f /app/.env.test
 
 CMD ["npm", "run", "dev"]

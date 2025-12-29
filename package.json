@@ -14,8 +14,8 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
+    "start": "node --require ./config/env.js src/server.js",
+    "dev": "node --watch --require ./config/env.js src/server.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
