@@ -136,6 +136,18 @@ curl -X GET http://<host>:<port>/logout?system=my_app_1_prod \
 -H "refresh_token: your_refresh_token" | jq
 ```
 
+## Reset password
+
+| parameter | value                                       | required | default value |
+|-----------|---------------------------------------------|----------|---------------|
+| system    | key from `config/tenants.js` tenants object | `no`     | `default`     |
+
+```bash
+curl -X POST http://<host>:<port>/send-reset-password-email \
+-H "Content-Type: application/json" \
+-d '{"email":"test@email.com"}'
+```
+
 # Multi Tenancy Support
 To enable multi-tenancy just create `config/tenants-local.js` file and add new tenants inside.
 For example add 3 tenants: `app-1-prod`, `app-1-test`, `app-2` and a default tenant that reads from environment variables.
