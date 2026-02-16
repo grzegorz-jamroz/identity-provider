@@ -34,8 +34,8 @@
 
    CREATE TABLE IF NOT EXISTS `<user_table_name>` (
      uuid       BINARY(16) NOT NULL,
-     username   VARCHAR(50),
-     email      VARCHAR(255),
+     username   VARCHAR(50) NOT NULL,
+     email      VARCHAR(255) NOT NULL,
      password   VARCHAR(255) NOT NULL,
      roles      JSON NOT NULL,
      created_at DATETIME     NOT NULL,

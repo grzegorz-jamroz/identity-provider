@@ -32,9 +32,10 @@ export default async function refresh(req, res) {
 
     await tokenRepository.deleteOneByUuid(refreshTokenUuid);
 
-    const accessToken = token.accessToken.create(user);
+    const newRefreshTokenUuid = uuidv7();
+    const accessToken = token.accessToken.create(user, newRefreshTokenUuid);
     const newRefreshToken = token.refreshToken.create(
-      uuidv7(),
+      newRefreshTokenUuid,
       uuidStringify(user.uuid),
       req.headers['user-agent'] || currentToken.device_info,
     );

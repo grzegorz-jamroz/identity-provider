@@ -13,7 +13,7 @@ const createAccessPayload = (user) => {
   return payload;
 };
 
-const createAccessToken = (user) => {
+const createAccessToken = (user, refreshTokenUuid) => {
   let uuid = user.uuid;
 
   if (typeof uuid !== 'string') {
@@ -22,7 +22,7 @@ const createAccessToken = (user) => {
 
   const payloadData = createAccessPayload(user);
 
-  return jwt.sign({ ...payloadData, uuid }, process.env.ACCESS_TOKEN_SECRET, {
+  return jwt.sign({ ...payloadData, uuid, refreshTokenUuid }, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN,
   });
 };

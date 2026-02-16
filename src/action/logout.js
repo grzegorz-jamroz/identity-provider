@@ -7,14 +7,24 @@ import TokenRepository from '../repository/tokenRepository.js';
 import getAppConfig from '../utility/appConfig.js';
 
 export default async function logout(req, res) {
-  const token = req.headers['refresh_token'];
+  const refreshToken = req.headers['refresh_token'];
+  const accessToken = req.headers['access_token'];
 
-  if (!token) {
+  if (!refreshToken && !accessToken) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 
   try {
-    const payload = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+    let payload = {};
+
+    if (accessToken) {
+      payload = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+    }
+
+    if (refreshToken && Object.keys(payload).length === 0) {
+      payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    }
+
     const { system } = getValidatedData(req);
     const db = await getDb(system);
     const appConfig = await getAppConfig(system);

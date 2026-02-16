@@ -19,8 +19,9 @@ export default async function login(req, res) {
     const userRepository = new UserRepository(db, appConfig);
     const user = await userRepository.findOneByCredentials(username, password);
     new LazyCleanupExpiredTokens(tokenRepository).run(user.uuid);
-    const accessToken = token.accessToken.create(user);
+    const refreshTokenUuid = uuidv7();
     const refreshToken = token.refreshToken.create(uuidv7(), uuidStringify(user.uuid), deviceInfo);
+    const accessToken = token.accessToken.create(user, refreshTokenUuid);
     await tokenRepository.insertOne(refreshToken);
 
     return res.json({ accessToken, refreshToken });
