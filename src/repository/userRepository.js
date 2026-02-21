@@ -36,7 +36,11 @@ export class UserRepository {
     }
 
     const user = users[0];
-    const match = await bcrypt.compare(password, user.password);
+
+    // Replace the prefix in the string before comparing (PHP uses $2y, but Node prefer $2b)
+    const passwordHash = user.password.replace(/^\$2y/, '$2b');
+
+    const match = await bcrypt.compare(password, passwordHash);
 
     if (!match) {
       throw error;
