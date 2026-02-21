@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [v1.1.1] - 2026.02.21
 
 ### Change
 - configure dotenv
@@ -17,5 +17,6 @@
 ### Add
 - First version of Identity Provider
 
+[v1.1.1]: https://github.com/grzegorz-jamroz/identity-provider/releases/tag/v1.1.1
 [v1.1.0]: https://github.com/grzegorz-jamroz/identity-provider/releases/tag/v1.1.0
 [v1.0.0]: https://github.com/grzegorz-jamroz/identity-provider/releases/tag/v1.0.0
