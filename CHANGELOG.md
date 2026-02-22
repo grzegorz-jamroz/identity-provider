@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+### Fix
+- fix mismatch with uuid for refresh token
+- fix SQL queries to use backticks for table names in token and user repositories
+- fix validation to handle undefined request body in login, logout, refresh, and register functions
+- fix cleanup job - use tenant-specific configuration
+
+### Remove
+- remove refresh token handling from logout function
+
 ## [v1.1.1] - 2026.02.21
 
 ### Change
