@@ -48,7 +48,7 @@ export default async function login(req, res) {
 
 const getValidatedData = (req) => {
   const deviceInfo = req.headers['user-agent'] || 'unknown';
-  const { error, value } = schema.validate(req.body, { abortEarly: false });
+  const { error, value } = schema.validate(req.body ?? {}, { abortEarly: false });
 
   if (error) {
     throw error;
