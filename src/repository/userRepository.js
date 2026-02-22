@@ -12,7 +12,7 @@ export class UserRepository {
 
   async findOneByUuid(uuid) {
     const [users] = await this.db.execute(
-      `SELECT * FROM ${this.appConfig.userTableName} WHERE uuid = ?`,
+      `SELECT * FROM \`${this.appConfig.userTableName}\` WHERE uuid = ?`,
       [transform.uuid.toBinary(uuid)],
     );
 
@@ -25,7 +25,7 @@ export class UserRepository {
 
   async findOneByCredentials(username, password) {
     const [users] = await this.db.execute(
-      `SELECT * FROM ${this.appConfig.userTableName} WHERE email = ? OR username = ?`,
+      `SELECT * FROM \`${this.appConfig.userTableName}\` WHERE email = ? OR username = ?`,
       [username, username],
     );
 
@@ -52,7 +52,7 @@ export class UserRepository {
   async getUuidByUsernameOrEmail(username, email) {
     const [users] = await this.db.execute(
       `SELECT uuid
-       FROM ${this.appConfig.userTableName}
+       FROM \`${this.appConfig.userTableName}\`
        WHERE email = ?
           OR username = ?`,
       [email, username],
@@ -75,7 +75,7 @@ export class UserRepository {
     updatedAt,
   }) {
     await this.db.execute(
-      `INSERT INTO ${this.appConfig.userTableName} (uuid, username, email, password, roles, created_at, updated_at)
+      `INSERT INTO \`${this.appConfig.userTableName}\` (uuid, username, email, password, roles, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         userUuidBinary,

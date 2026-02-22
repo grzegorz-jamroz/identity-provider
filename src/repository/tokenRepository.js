@@ -11,7 +11,7 @@ export class TokenRepository {
 
   async findOneByUuid(uuid) {
     const [tokens] = await this.db.execute(
-      `SELECT * FROM ${this.appConfig.refreshTokenTableName} WHERE uuid = ?`,
+      `SELECT * FROM \`${this.appConfig.refreshTokenTableName}\` WHERE uuid = ?`,
       [transform.uuid.toBinary(uuid)],
     );
 
@@ -39,14 +39,15 @@ export class TokenRepository {
   }
 
   async deleteOneByUuid(uuid) {
-    await this.db.execute(`DELETE FROM ${this.appConfig.refreshTokenTableName} WHERE uuid = ?`, [
-      transform.uuid.toBinary(uuid),
-    ]);
+    await this.db.execute(
+      `DELETE FROM \`${this.appConfig.refreshTokenTableName}\` WHERE uuid = ?`,
+      [transform.uuid.toBinary(uuid)],
+    );
   }
 
   async deleteExpiredByUserUuid(userUuid) {
     await this.db.execute(
-      `DELETE FROM ${this.appConfig.refreshTokenTableName} WHERE user_uuid = ? AND exp < ?`,
+      `DELETE FROM \`${this.appConfig.refreshTokenTableName}\` WHERE user_uuid = ? AND exp < ?`,
       [transform.uuid.toBinary(userUuid), new Date()],
     );
   }
