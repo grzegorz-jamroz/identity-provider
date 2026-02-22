@@ -58,7 +58,7 @@ export default async function register(req, res) {
 }
 
 const getValidatedData = (req) => {
-  const { error, value } = schema.validate(req.body, { abortEarly: false });
+  const { error, value } = schema.validate(req.body ?? {}, { abortEarly: false });
 
   if (error) {
     throw error;

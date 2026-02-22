@@ -48,7 +48,7 @@ export default async function logout(req, res) {
 }
 
 const getValidatedData = (req) => {
-  const { error, value } = schema.validate(req.query, { abortEarly: false });
+  const { error, value } = schema.validate(req.query ?? {}, { abortEarly: false });
 
   if (error) {
     throw error;
