@@ -1,7 +1,9 @@
 import app from './app.js';
 import { startCleanupJobForAllSystems } from './cleanup.js';
 import { closeAllPools } from './db.js';
+import { validateTenantsConfig } from './validateConfig.js';
 
+validateTenantsConfig();
 startCleanupJobForAllSystems();
 
 const server = app.listen(process.env.APP_CONTAINER_PORT_PORT, () => {
